@@ -6,14 +6,14 @@ wallsX = 300
 wallsY = 200
 delay = 0.025
 direction = 0
-paddleSpeed = 15
+paddleSpeed = 20
 score = 0
 highScore = 0
 lengthMod = 4
 widthMod = 0.5
 ballXSpeed = 5
-ballYSpeed = 7
-speedBoostMod = 1.1
+ballYSpeed = 5
+speedBoostMod = 1.2
 radius = 10
 xv = -ballXSpeed
 yv = -ballYSpeed
@@ -40,13 +40,13 @@ def drawBorder():
 def paddleUp():
     paddle.sety(paddle.ycor() + paddleSpeed)
     if paddle.ycor() + (lengthMod * 10) >= wallsY:
-        paddle.sety(wallsY - (lengthMod * 10))
+        paddle.sety(wallsY - (lengthMod * 10)-1)
 
 
 def paddleDown():
     paddle.sety(paddle.ycor() - paddleSpeed)
     if paddle.ycor() - (lengthMod * 10) <= -wallsY:
-        paddle.sety(-wallsY + (lengthMod * 10))
+        paddle.sety(-wallsY + (lengthMod * 10)+1)
 
 
 #Do movement stuff
@@ -82,6 +82,23 @@ def moveBall():
     ball.sety(ball.ycor() + yv)
 
 
+
+
+def wallCollision():
+  global xv, yv,GameOver,score
+  if ball.xcor() <= -wallsX + ball.radius:
+    ball.setx(-wallsX+ball.radius)
+    xv = -xv
+  if ball.ycor() <= -wallsY + ball.radius:
+    ball.sety(-wallsY+ball.radius)
+    yv = -yv
+  if ball.ycor() >= wallsY - ball.radius:
+    ball.sety(wallsY-ball.radius)
+    yv = -yv
+  if ball.xcor() >= wallsX - ball.radius:
+    GameOver = True
+    score = 0
+
 #set up turtles
 
 #set up the Window
@@ -95,6 +112,7 @@ win.tracer(0)
 border = turtle.Turtle()
 border.speed(0)
 border.color('white')
+
 border.hideturtle()
 drawBorder()
 
@@ -142,18 +160,12 @@ while True:
     interpretDirection()
     moveBall()
     if is_collided_with(paddle, ball):
+        ball.setx(paddle.xcor()-ball.radius-(10*widthMod))
         xv = -xv
         score = score + 1
         xv = xv * r.uniform(1, speedBoostMod)
         yv = yv * r.uniform(1, speedBoostMod)
-    if ball.xcor() <= -wallsX + 10:
-        xv = -xv
-    if ball.ycor() <= -wallsY + ball.radius or ball.ycor(
-    ) >= wallsY - ball.radius:
-        yv = -yv
-    if ball.xcor() >= wallsX - ball.radius:
-        GameOver = True
-        score = 0
+    wallCollision()
     if score > highScore:
         highScore = score
     pen.clear()
